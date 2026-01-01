@@ -19,20 +19,17 @@ Due to missing and outright incorrect information that was present in the paper,
 
 The main difference introduced by me is the blending heuristics, which are supposed to reflect a more physically accurate motion blur phenomenon. 
 
-### Pre-Processing
+#### Pre-Processing
 
 Before the motion blur can be applied, a pre processing stage is carried out to perform a few things:
 
 1. Add motion vectors to the skybox, as those are not available by default.
 2. Add support for FSR2 supersampling. 
 3. Add control and configurability to different components of the motion blur, which are camera rotation, camera motion, and object motion, separately.
+4. Add a depth component to stationary environment's velocity (more on that later)
 
-This stage is carried out by the **PreBlurProcessor** compositor effect, thus it must be added before any motion blur compositor effect in the `compositor_effects` array.
+This stage is carried out by the currently active motion blur compositor effect before it generates the motion blur.
 
-![alt text](readme-assets/pre-blur-processor.png)
-
-You can find the script in `res://addons/sphynx_motion_blur_toolkit/pre_blur_processing/pre_blur_processor.gd`.
-You can find the shader file that it uses in `res://addons/sphynx_motion_blur_toolkit/pre_blur_processing/shader_stages/shaders/pre_blur_processor.glsl`.
 ### Guertin's motion blur
 
 The motion blur method depicted in the article is carried out in 4 stages:
@@ -43,11 +40,7 @@ The motion blur method depicted in the article is carried out in 4 stages:
 
 3. **Neighbor Max** - A dominant velocity is picked from the neighboring tiles, dilating stronger velocities beyond their original tiles. The shader file for it can be found in `res://addons/sphynx_motion_blur_toolkit/guertin/shader_stages/shader_files/guertin_neighbor_max.glsl`.
 
-4. **Blur Reconstruction** - Combining all data textures using blending heuristics to reconstruct the blur effect in screen space. The shader file for it can be found in `res://addons/sphynx_motion_blur_toolkit/guertin/shader_stages/shader_files/guertin_sphynx_blur.glsl`. You can find the **KinoMotion** version of the implementation in `res://addons/sphynx_motion_blur_toolkit/guertin/shader_stages/shader_files/guertin_kino_blur.glsl`. The main difference will be that my blending heuristics achieve a result that is closer to the ground truth, and are more robust against motion in the z axis.
-
-It is carried out by the **GuertinMotionBlur** compositor effect.
-
-![alt text](readme-assets/guertin-motion-blur.png)
+4. **Blur Reconstruction** - Combining all data textures using blending heuristics to reconstruct the blur effect in screen space. The shader file for it can be found in `res://addons/sphynx_motion_blur_toolkit/guertin/shader_stages/shader_files/guertin_sphynx_blur.glsl`.
 
 You can find the script in `res://addons/sphynx_motion_blur_toolkit/guertin/guertin_motion_blur.gd`.
 
